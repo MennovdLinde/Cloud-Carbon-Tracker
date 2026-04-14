@@ -1,6 +1,34 @@
+# Dependencies — never commit these
 node_modules/
+**/node_modules/
+
+# Build output
 dist/
+**/dist/
+build/
+**/build/
+
+# Environment & secrets
 .env
+.env.*
+!.env.example
 *.env.local
 gcp-key.json
+*.pem
+*.key
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+npm-debug.log*
+
+# Heroku
+.heroku/
