@@ -6,7 +6,8 @@ import RegionCard from './components/RegionCard';
 import Recommendations from './components/Recommendations';
 import Charts from './components/Charts';
 
-const API = '/api/carbon/summary';
+const BASE = import.meta.env.VITE_API_URL ?? '';
+const API = `${BASE}/api/carbon/summary`;
 
 export default function App() {
   const [data, setData] = useState<SummaryData | null>(null);
