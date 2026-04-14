@@ -6,7 +6,7 @@ import RegionCard from './components/RegionCard';
 import Recommendations from './components/Recommendations';
 import Charts from './components/Charts';
 
-const BASE = import.meta.env.VITE_API_URL ?? '';
+const BASE = import.meta.env.VITE_API_URL ?? 'https://cloud-carbon-tracker-api-b1b7f289ecff.herokuapp.com';
 const API = `${BASE}/api/carbon/summary`;
 
 export default function App() {
