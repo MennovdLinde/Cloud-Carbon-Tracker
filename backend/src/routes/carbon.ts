@@ -2,15 +2,43 @@ import { Router, Request, Response } from 'express';
 import { regions, getRegionById } from '../data/regions';
 import { mockUsage } from '../data/mock';
 import { calculateCarbon, CarbonResult } from '../services/carbonCalc';
+import { fetchAwsUsage, hasAwsCredentials } from '../services/cloudProvider';
+import { hasGcpCredentials, verifyGcpCredentials } from '../services/gcpProvider';
 
 const router = Router();
 
 // GET /api/carbon/summary
 // Returns carbon + cost data for all active regions
-router.get('/summary', (_req: Request, res: Response) => {
+router.get('/summary', async (_req: Request, res: Response) => {
+  let usageData = mockUsage;
+  const sources: string[] = [];
+
+  // Try AWS
+  if (hasAwsCredentials()) {
+    try {
+      const awsData = await fetchAwsUsage();
+      if (awsData.length > 0) {
+        usageData = awsData;
+        sources.push('aws');
+      }
+    } catch (err) {
+      console.error('AWS fetch failed:', err);
+    }
+  }
+
+  // GCP: verify credentials only — per-region spend needs BigQuery export
+  // GCP regions appear in /api/carbon/regions with accurate carbon intensity data
+  let gcpConnected = false;
+  if (hasGcpCredentials()) {
+    gcpConnected = await verifyGcpCredentials();
+    if (gcpConnected) sources.push('gcp');
+  }
+
+  const dataSource = sources.length > 0 ? sources.join('+') : 'mock';
+
   const results: CarbonResult[] = [];
 
-  for (const usage of mockUsage) {
+  for (const usage of usageData) {
     const region = getRegionById(usage.regionId);
     if (!region) continue;
     results.push(calculateCarbon(usage, region));
@@ -30,7 +58,8 @@ router.get('/summary', (_req: Request, res: Response) => {
 
   res.json({
     generatedAt: new Date().toISOString(),
-    dataSource: 'mock', // changes to 'aws' or 'gcp' when credentials added
+    dataSource,
+    gcpConnected,
     totals: {
       monthlyCostUsd: Math.round(totalCostUsd * 100) / 100,
       co2Kg: Math.round(totalCo2Kg * 10) / 10,
@@ -56,7 +85,7 @@ router.get('/summary', (_req: Request, res: Response) => {
 router.get('/regions', (_req: Request, res: Response) => {
   const allRegions = regions.map((r) => ({
     ...r,
-    rating: r.carbonIntensity < 150 ? 'green' : r.carbonIntensity < 350 ? 'yellow' : 'red',
+    rating: r.carbonIntensity < 150 ? 'green' : r.carbonIntensity <= 350 ? 'yellow' : 'red',
   }));
   res.json(allRegions);
 });

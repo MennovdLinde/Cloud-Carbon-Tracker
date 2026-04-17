@@ -21,7 +21,7 @@ Track your AWS/GCP/Azure infrastructure's carbon footprint by region, get alerts
 
 ## Screenshots
 
-> Dashboard showing 5 active regions, CO₂ bar chart, cost pie chart, alerts, and recommendations.
+![Cloud Carbon Tracker Dashboard](screenshot.png)
 
 ---
 

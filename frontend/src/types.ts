@@ -27,6 +27,7 @@ export interface GreenestAlternative {
 export interface SummaryData {
   generatedAt: string;
   dataSource: string;
+  gcpConnected: boolean;
   totals: {
     monthlyCostUsd: number;
     co2Kg: number;

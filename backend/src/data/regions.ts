@@ -126,6 +126,6 @@ export function getRegionById(id: string): Region | undefined {
 
 export function getRatingLabel(carbonIntensity: number): 'green' | 'yellow' | 'red' {
   if (carbonIntensity < 150) return 'green';
-  if (carbonIntensity < 350) return 'yellow';
+  if (carbonIntensity <= 350) return 'yellow';
   return 'red';
 }
