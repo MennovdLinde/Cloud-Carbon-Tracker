@@ -27,13 +27,13 @@ router.get('/summary', async (_req: Request, res: Response) => {
   }
 
   // GCP: verify credentials only — per-region spend needs BigQuery export
-  // GCP regions appear in /api/carbon/regions with accurate carbon intensity data
+  // gcpConnected shows in response but does NOT affect dataSource (no real spend data)
   let gcpConnected = false;
   if (hasGcpCredentials()) {
     gcpConnected = await verifyGcpCredentials();
-    if (gcpConnected) sources.push('gcp');
   }
 
+  // dataSource reflects actual data origin only (not credential presence)
   const dataSource = sources.length > 0 ? sources.join('+') : 'mock';
 
   const results: CarbonResult[] = [];
