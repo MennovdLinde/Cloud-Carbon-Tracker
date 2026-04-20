@@ -2,7 +2,17 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 function getGcpKeyJson(): Record<string, string> | null {
-  // Priority 1: GCP_KEY_JSON env var (used on Heroku/production)
+  // Priority 1: GCP_KEY_BASE64 env var (used on Heroku — avoids escaping issues)
+  const keyBase64 = process.env.GCP_KEY_BASE64;
+  if (keyBase64) {
+    try {
+      return JSON.parse(Buffer.from(keyBase64, 'base64').toString('utf-8'));
+    } catch {
+      return null;
+    }
+  }
+
+  // Priority 2: GCP_KEY_JSON env var (raw JSON string)
   const keyJson = process.env.GCP_KEY_JSON;
   if (keyJson) {
     try {
